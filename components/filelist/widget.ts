@@ -1,7 +1,7 @@
 // components/FileListWidget.ts
 import { Widget } from '@lumino/widgets';
 import type { NestedTreeNode } from '../bundle/github-tools';
-import { Message, MessageLoop } from '@lumino/messaging';
+import { Message } from '@lumino/messaging';
 import Tree from './tree.js';
 import
 {
@@ -322,7 +322,7 @@ export class FileListWidget extends filelistSelf.SingletonSidebarWidget implemen
 				const branch = (this.node.querySelector('.filelist-branch') as HTMLSelectElement).value;
 				this.handleKey = `${owner}/${repo}`;
 
-				let files: Record<string, GitHubFileEntry> | undefined = undefined;
+				let files: Record<string, GitHubFileEntry> | undefined = filelistSelf.filesRepo?.[this.selector];
 				if(filelistSelf.filesRepo && !filelistSelf.filesRepo[this.selector])
 				{
 					files = filelistSelf.filesRepo[this.selector] = await filelistSelf.loadGitHubTree?.(owner, repo, branch, folderId);

@@ -1,11 +1,21 @@
 
-import { Ace } from "ace-builds";
+import type { Ace } from "ace-builds";
 import type { AceEditorWidget } from "./widget";
+import type { BlockResult, HilightResult, ParserEvent } from "../rosetta/rosetta-types";
 
 export interface AceSession extends Ace.EditSession
 {
 	workspaceFileId?: string;
+	workspaceFileSha?: string;
+	highlightData: HilightResult;
+	highlightedLines: Array<Array<{ type: string, value: string; }>>;
+	highlightHTML: string;
 	$worker?: Worker;
+	$editor: Ace.Editor;
+	antlrDiscoveredFoldBlocks?: BlockResult[];
+	workerAnnotations: ParserEvent[];
+	_emit: (type: string, data: any) => void;
+	$modeId: string;
 }
 
 export type AceEditor = typeof Ace & {
@@ -17,7 +27,13 @@ export type AceEditor = typeof Ace & {
 		loadModule: (module: [string, string], callback: () => void) => void;
 		set: (key: string, value: string) => void;
 	};
-	require: (modules: string[], callback: (moduleExports: any) => void) => void;
+	require: (modules: string[] | string, callback?: (moduleExports: any) => void) => any;
+	define: (
+		name: string,
+		deps: string[],
+		loaded: (require: (module: string) => any,
+			exports: any,
+			module: any) => void) => void;
 };
 
 export interface EditorWindow
@@ -31,7 +47,7 @@ export interface EditorWindow
 		};
 	};
 	ace?: AceEditor;
-
+	currentBlockMarkerId: number | null;
 	diagnosticsBridge?: any;
 	AceEditorWidget?: typeof AceEditorWidget;
 	previousHashLineNumber?: number | null;

@@ -14,7 +14,8 @@ import type { LuminoLayoutWindow } from '../bundle/lumino.d';
 import type { TerminalWindow } from '../terminal/widget.d';
 
 
-const editorSelf: EditorWindow & GithubWindow & GlobalToolbarsWindow & LuminoLayoutWindow & LuminoMenuWindow & TerminalWindow = self as unknown as any;
+const editorSelf: EditorWindow & GithubWindow & GlobalToolbarsWindow & LuminoLayoutWindow
+	& LuminoMenuWindow & TerminalWindow = self as unknown as any;
 
 
 interface ISessionCache

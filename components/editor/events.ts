@@ -36,7 +36,6 @@ export class AceEventManager
 	// State Tracking
 	private _aceMoveDebounceTimer: number | null = null;
 	private _globalTooltip: HTMLElement;
-	private _currentBlockMarkerId: number | null = null;
 
 	constructor(widget: AceEditorWidget)
 	{
@@ -88,14 +87,15 @@ export class AceEventManager
 		{
 			console.log('[ACE SESSION SWAP] New file context mounted. Re-binding tracking listeners.');
 
-			if(this._currentBlockMarkerId !== null && e.oldSession)
+			if(editorSelf.currentBlockMarkerId !== null && e.oldSession)
 			{
-				e.oldSession.removeMarker(this._currentBlockMarkerId);
-				this._currentBlockMarkerId = null;
+				e.oldSession.removeMarker(editorSelf.currentBlockMarkerId);
+				editorSelf.currentBlockMarkerId = null;
 			}
 
 			editorSelf.ace?.require(["ace/mode/antlr_worker"], (antlrWorkerModule: any) =>
 			{
+				debugger;
 				if(antlrWorkerModule && antlrWorkerModule.switchActiveSession)
 				{
 					antlrWorkerModule.switchActiveSession(e.session);
@@ -413,7 +413,7 @@ export function onBlockTrackerCursorChange(session: AceSession, aceEditor: Ace.E
 }
 
 
-export function bindBlockTrackerToSession(session: Ace.EditSession, editor: Ace.Editor)
+export function bindBlockTrackerToSession(session: AceSession, editor: Ace.Editor)
 {
 	if(!session || !session.selection) return;
 

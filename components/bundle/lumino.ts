@@ -2,10 +2,9 @@ import './logging';
 import './levenshtein';
 import './lumino-search';
 import './github-worker';
-import '../proxy/websocket';
 import './widget-extensions';
 import { GlobalDropManager } from '../tools/drag-and-drop';
-import { BoxPanel, DockPanel, Widget, Menu, MenuBar } from '@lumino/widgets';
+import { BoxPanel, DockPanel, Widget } from '@lumino/widgets';
 import * as commands from '@lumino/commands';
 import * as widgets from '@lumino/widgets';
 import * as messaging from '@lumino/messaging';
@@ -25,10 +24,13 @@ import type { LuminoLayoutWindow } from './lumino.d';
 import type { LuminoMenuWindow, RepositorySettingsWindow } from './menu.d';
 import { updateHashFromWidget } from './lumino-widget';
 import { SplashScreenWidget } from './splash';
-import { LayoutManager } from 'fabric';
+import { WebSocketMonitor } from '../proxy/websocket';
 
 
-const luminoSelf: LuminoLayoutWindow & LuminoMenuWindow & RepositorySettingsWindow = self as unknown as any;
+const luminoSelf: LuminoLayoutWindow & LuminoMenuWindow & RepositorySettingsWindow
+	& {
+		WebSocketMonitor: typeof WebSocketMonitor;
+	} = self as unknown as any;
 
 
 luminoSelf.Lumino = {
@@ -139,16 +141,16 @@ function main(): void
 
 		if(msg.type === 'child-added' && (msg as any).child)
 		{
-			const addingWidget = (msg as any).child as Widget;
-			const newType = addingWidget?.constructor.name;
-			const lastType = luminoSelf.lastInteractedWidget?.constructor.name;
+			// const addingWidget = (msg as any).child as Widget;
+			// const newType = addingWidget?.constructor.name;
+			// const lastType = luminoSelf.lastInteractedWidget?.constructor.name;
 
 			// Only update history if the incoming widget type is different from the last tracked type
-			if(newType !== lastType)
-			{
-				luminoSelf.previousInteractedWidget = luminoSelf.lastInteractedWidget;
-				luminoSelf.lastInteractedWidget = addingWidget;
-			}
+			// if(newType !== lastType)
+			// {
+			// 	luminoSelf.previousInteractedWidget = luminoSelf.lastInteractedWidget;
+			// 	luminoSelf.lastInteractedWidget = addingWidget;
+			// }
 
 			console.log('Added widget: ' + luminoSelf.lastInteractedWidget?.constructor.name + ' inActive: ' + luminoSelf.previousInteractedWidget?.constructor.name);
 			requestAnimationFrame(() =>
@@ -213,7 +215,7 @@ function main(): void
 	const splash = new SplashScreenWidget('Starting Up...');
 	luminoSelf.splashScreen = splash;
 	Widget.attach(splash, document.body);
-
+	WebSocketMonitor.initQ3Socks5Networking();
 	startServiceWorker().then(async () =>
 	{
 		// because scripts depend on service worker injections and TODO: eventually compiling from SW
